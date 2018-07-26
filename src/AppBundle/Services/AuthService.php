@@ -50,7 +50,7 @@ class AuthService
             $email = $authData[0] ?? null;
             $password = $authData[1] ?? null;
 
-            if ($email || $password) {
+            if (!$email || !$password) {
                 return false;
             }
 

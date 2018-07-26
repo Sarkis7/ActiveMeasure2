@@ -14,6 +14,6 @@ use Doctrine\ORM\EntityRepository;
 class UserRepository extends EntityRepository implements UserRepositoryInterface
 {
     public function findByEmailAndPassword(string $email, string $password) {
-        return $this->findOneBy(['email' => $email, $password => $password]);
+        return $this->findOneBy(['email' => $email, 'password' => $password]);
     }
 }
