@@ -9,8 +9,12 @@
 namespace AppBundle\Repository;
 
 
+use AppBundle\Entity\User;
+
 interface NoteRepositoryInterface
 {
-    public function find($id);
-    public function create($noteData);
+    public function findById(int $id);
+    public function create(array $noteData, User $user);
+    public function update(array $noteData, User $user);
+    public function delete(int $id, User $user);
 }

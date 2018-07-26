@@ -95,7 +95,7 @@ class Note
     }
 
     /**
-     * @return mixed
+     * @return User
      */
     public function getUser()
     {

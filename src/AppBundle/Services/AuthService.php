@@ -9,6 +9,7 @@
 namespace AppBundle\Services;
 
 
+use AppBundle\Entity\User;
 use AppBundle\Repository\UserRepository;
 use AppBundle\Repository\UserRepositoryInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -18,8 +19,10 @@ class AuthService
     const AUTHORIZATION_HEADER = 'Authorization';
     const AUTHORIZATION_HEADER_DELIMITER = ':';
 
-    private $requestStack;
     private $user;
+
+    private $requestStack;
+
     private $userRepository;
 
     public function __construct(RequestStack $requestStack, UserRepositoryInterface $userRepository)
@@ -28,6 +31,9 @@ class AuthService
         $this->userRepository = $userRepository;
     }
 
+    /**
+     * @return User|false
+    */
     public function getUser() {
         if (!$this->user) {
             $request = $this->requestStack->getCurrentRequest();
@@ -47,8 +53,15 @@ class AuthService
             if ($email || $password) {
                 return false;
             }
+
+            $user = $this->userRepository->findByEmailAndPassword($email, $password);
+
+            if ($user) {
+                $this->user = $user;
+                return $user;
+            }
         }
 
-        return false;
+        return $this->user;
     }
 }

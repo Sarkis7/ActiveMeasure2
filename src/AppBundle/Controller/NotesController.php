@@ -23,13 +23,19 @@ class NotesController extends Controller
         $this->authService = $authService;
     }
 
-    public function getNoteAction($id, Request $request)
+    public function getNoteAction($id)
     {
-        var_dump($this->authService->getUser());
-        exit;
-        $note = $this->noteRepository->find($id);
+        if (!$this->authService->getUser()) {
+            return $this->jsonResponse('@app/error.json.twig', ['errors' => 'Unauthorized user'], 401);
+        }
+
+        if (!filter_var($id, FILTER_VALIDATE_INT)) {
+            return $this->jsonResponse('@app/error.json.twig', ['errors' => 'Id is not integer'], 401);
+        }
+
+        $note = $this->noteRepository->findById($id);
         if (!$note) {
-            return $this->jsonResponse('@app/error.json.twig', ['errors' => 'Undefined note']);
+            return $this->jsonResponse('@app/error.json.twig', ['errors' => 'Undefined note'], 404);
         }
 
         return $this->jsonResponse('@app/note.json.twig', ['note' => $note]);
@@ -37,42 +43,68 @@ class NotesController extends Controller
 
     public function postNoteAction(Request $request)
     {
-        $noteData = $request->request->all();
+        if (!$this->authService->getUser()) {
+            return $this->jsonResponse('@app/error.json.twig', ['errors' => 'Unauthorized user'], 401);
+        }
+
+        $noteData = ['title' => $request->request->get('title'), 'note' => $request->request->get('note')];
         $validator = new NoteValidator($noteData);
         $validator->validate();
 
         if ($validator->hasErrors()) {
-            return $this->jsonResponse('@app/error.json.twig', ['errors' => $validator->getErrors()]);
+            return $this->jsonResponse('@app/error.json.twig', ['errors' => $validator->getErrors()], 400);
         }
 
-        $note = $this->noteRepository->create($noteData);
+        $note = $this->noteRepository->create($noteData, $this->authService->getUser());
 
         return $this->jsonResponse('@app/note.json.twig', ['note' => $note]);
     }
 
     public function putNoteAction($id, Request $request)
     {
-        echo $request;
-        exit;
-        // replace this example code with whatever you need
-        return $this->render('default/index.html.twig', [
-            'base_dir' => realpath($this->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR,
-        ]);
+        if (!$this->authService->getUser()) {
+            return $this->jsonResponse('@app/error.json.twig', ['errors' => 'Unauthorized user'], 401);
+        }
+
+        if (!filter_var($id, FILTER_VALIDATE_INT)) {
+            return $this->jsonResponse('@app/error.json.twig', ['errors' => 'Id is not integer'], 400);
+        }
+
+        $noteData = [
+            'id' => $id,
+            'title' => $request->request->get('title'),
+            'note' => $request->request->get('note')
+        ];
+        $validator = new NoteValidator($noteData);
+        $validator->validate();
+
+        if ($validator->hasErrors()) {
+            return $this->jsonResponse('@app/error.json.twig', ['errors' => $validator->getErrors()], 400);
+        }
+
+        $note = $this->noteRepository->update($noteData, $this->authService->getUser());
+
+        return $this->jsonResponse('@app/note.json.twig', ['note' => $note]);
     }
 
     public function deleteNoteAction($id, Request $request)
     {
-        echo $request;
-        exit;
-        // replace this example code with whatever you need
-        return $this->render('default/index.html.twig', [
-            'base_dir' => realpath($this->getParameter('kernel.project_dir')).DIRECTORY_SEPARATOR,
-        ]);
+        if (!$this->authService->getUser()) {
+            return $this->jsonResponse('@app/error.json.twig', ['errors' => 'Unauthorized user'], 401);
+        }
+
+        if (!filter_var($id, FILTER_VALIDATE_INT)) {
+            return $this->jsonResponse('@app/error.json.twig', ['errors' => 'Id is not integer'], 401);
+        }
+
+        $this->noteRepository->delete($id, $this->authService->getUser());
+
+        return $this->jsonResponse('@app/note.json.twig', []);
     }
 
-    public function jsonResponse($view, $data) {
-        $response = new Response();
-        $response->setContent($this->renderView($view, $data));
+    public function jsonResponse($view, array $data, $code = 200) {
+        $data['status'] = $code === 200 ? true : false;
+        $response = new Response($this->renderView($view, $data), $code);
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
