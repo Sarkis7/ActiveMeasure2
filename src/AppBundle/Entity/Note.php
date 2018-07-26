@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="notes")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\NoteRepository")
  */
 class Note
 {
@@ -48,4 +49,82 @@ class Note
      * @ORM\Column(type="datetime")
      */
     private $updateTime;
+
+    /**
+     * @return mixed
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
+     * @param mixed $title
+     * @return Note
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNote()
+    {
+        return $this->note;
+    }
+
+    /**
+     * @param mixed $note
+     * @return Note
+     */
+    public function setNote($note)
+    {
+        $this->note = $note;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param mixed $user
+     * @return Note
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreatedTime()
+    {
+        return $this->createdTime;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUpdateTime()
+    {
+        return $this->updateTime;
+    }
 }

@@ -35,6 +35,8 @@ framework:
 twig:
     debug: '%kernel.debug%'
     strict_variables: '%kernel.debug%'
+    paths:
+            '%kernel.project_dir%/src/AppBundle/views': app
 
 # Doctrine Configuration
 doctrine:
@@ -69,3 +71,7 @@ swiftmailer:
 sensio_framework_extra:
    router:
         annotations: false
+
+fos_rest:
+    routing_loader:
+        default_format: json
