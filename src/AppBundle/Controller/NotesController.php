@@ -99,7 +99,7 @@ class NotesController extends Controller
     }
 
     public function jsonResponse($view, array $data, $code = 200) {
-        $data['status'] = $code === 200 ? true : false;
+        $data['status'] = $code === 200 ? 'true' : 'false';
         $response = new Response($view ? $this->renderView($view, $data) : json_encode($data), $code);
         $response->headers->set('Content-Type', 'application/json');
         return $response;
