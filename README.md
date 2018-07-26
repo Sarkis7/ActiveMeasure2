@@ -1,77 +1,81 @@
-Symfony Standard Edition
-========================
+<p align="center"><img src="http://www.activemeasure.com/images/logo.png"></p>
 
-**WARNING**: This distribution does not support Symfony 4. See the
-[Installing & Setting up the Symfony Framework][15] page to find a replacement
-that fits you best.
+## Active Measure test
 
-Welcome to the Symfony Standard Edition - a fully-functional Symfony
-application that you can use as the skeleton for your new applications.
+Test user: test@microsoft.com:billy007
 
-For details on how to download and get started with Symfony, see the
-[Installation][1] chapter of the Symfony Documentation.
+Base64: dGVzdEBtaWNyb3NvZnQuY29tOmJpbGx5MDA3
 
-What's inside?
---------------
+###### CREATE
+```bash
+curl -X POST \
+  http://activemeasure.local/note \
+  -H 'Authorization: Basic dGVzdEBtaWNyb3NvZnQuY29tOmJpbGx5MDA3' \
+  -H 'Content-Type: application/json' \
+  -d '{"title": "testTitle", "note": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry'\''s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."}'
+```
 
-The Symfony Standard Edition is configured with the following defaults:
+###### READ
 
-  * An AppBundle you can use to start coding;
+```bash
+curl -X GET \
+  http://activemeasure.local/note/1 \
+  -H 'Authorization: Basic dGVzdEBtaWNyb3NvZnQuY29tOmJpbGx5MDA3'
+```
 
-  * Twig as the only configured template engine;
+###### UPDATE
 
-  * Doctrine ORM/DBAL;
+```bash
+curl -X PUT \
+  http://activemeasure.local/note/1 \
+  -H 'Authorization: Basic dGVzdEBtaWNyb3NvZnQuY29tOmJpbGx5MDA3' \
+  -H 'Content-Type: application/json' \
+  -d '{"id": 6, "title": "testTitle", "note": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry'\''s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."}'
+```
 
-  * Swiftmailer;
+###### DELETE
 
-  * Annotations enabled for everything.
+```bash
+curl -X DELETE \
+  http://activemeasure.local/note/1 \
+  -H 'Authorization: Basic dGVzdEBtaWNyb3NvZnQuY29tOmJpbGx5MDA3'
+```
 
-It comes pre-configured with the following bundles:
+###### Nginx config
 
-  * **FrameworkBundle** - The core Symfony framework bundle
 
-  * [**SensioFrameworkExtraBundle**][6] - Adds several enhancements, including
-    template and routing annotation capability
+```bash
+server {
+	listen 80;
+	server_name activemeasure.local;
+	root /Users/brosako/Documents/ActiveMeasure/public;
 
-  * [**DoctrineBundle**][7] - Adds support for the Doctrine ORM
+	index index.php;
 
-  * [**TwigBundle**][8] - Adds support for the Twig templating engine
+ 	access_log /usr/local/var/log/nginx/activeMeasure.access.log;
+ 	error_log /usr/local/var/log/nginx/activeMeasure.error.log;
 
-  * [**SecurityBundle**][9] - Adds security by integrating Symfony's security
-    component
+	location / {
+		try_files $uri $uri/ /index.php?$query_string;
+	}
 
-  * [**SwiftmailerBundle**][10] - Adds support for Swiftmailer, a library for
-    sending emails
+	location @script{
+        rewrite ^(.*)$ /index.php last;
+    } 
 
-  * [**MonologBundle**][11] - Adds support for Monolog, a logging library
+	location ~ ^/index\.php(/|$) {
+		fastcgi_pass 127.0.0.1:9000;
+		fastcgi_index index.php;
+		fastcgi_split_path_info ^(.+\.php)(/.*)$;
+		include fastcgi_params;
+		fastcgi_param SCRIPT_FILENAME   $document_root$fastcgi_script_name;
+		fastcgi_param HTTPS             off;
+		fastcgi_param ENVIRONMENT	LOCAL;
+		fastcgi_param DOCUMENT_ROOT $realpath_root;
+       }
 
-  * **WebProfilerBundle** (in dev/test env) - Adds profiling functionality and
-    the web debug toolbar
-
-  * **SensioDistributionBundle** (in dev/test env) - Adds functionality for
-    configuring and working with Symfony distributions
-
-  * [**SensioGeneratorBundle**][13] (in dev env) - Adds code generation
-    capabilities
-
-  * [**WebServerBundle**][14] (in dev env) - Adds commands for running applications
-    using the PHP built-in web server
-
-  * **DebugBundle** (in dev/test env) - Adds Debug and VarDumper component
-    integration
-
-All libraries and bundles included in the Symfony Standard Edition are
-released under the MIT or BSD license.
-
-Enjoy!
-
-[1]:  https://symfony.com/doc/3.4/setup.html
-[6]:  https://symfony.com/doc/current/bundles/SensioFrameworkExtraBundle/index.html
-[7]:  https://symfony.com/doc/3.4/doctrine.html
-[8]:  https://symfony.com/doc/3.4/templating.html
-[9]:  https://symfony.com/doc/3.4/security.html
-[10]: https://symfony.com/doc/3.4/email.html
-[11]: https://symfony.com/doc/3.4/logging.html
-[13]: https://symfony.com/doc/current/bundles/SensioGeneratorBundle/index.html
-[14]: https://symfony.com/doc/current/setup/built_in_web_server.html
-[15]: https://symfony.com/doc/current/setup.html
+	location ~ \.php$ {
+        return 404;
+    }
+}
+```
