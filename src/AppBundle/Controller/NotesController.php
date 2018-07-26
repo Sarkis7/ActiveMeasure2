@@ -66,10 +66,6 @@ class NotesController extends Controller
             return $this->jsonResponse('@app/error.json.twig', ['errors' => 'Unauthorized user'], 401);
         }
 
-        if (!filter_var($id, FILTER_VALIDATE_INT)) {
-            return $this->jsonResponse('@app/error.json.twig', ['errors' => 'Id is not integer'], 400);
-        }
-
         $noteData = [
             'id' => $id,
             'title' => $request->request->get('title'),
@@ -94,17 +90,17 @@ class NotesController extends Controller
         }
 
         if (!filter_var($id, FILTER_VALIDATE_INT)) {
-            return $this->jsonResponse('@app/error.json.twig', ['errors' => 'Id is not integer'], 401);
+            return $this->jsonResponse('@app/error.json.twig', ['errors' => 'Id is not integer'], 400);
         }
 
         $this->noteRepository->delete($id, $this->authService->getUser());
 
-        return $this->jsonResponse('@app/note.json.twig', []);
+        return $this->jsonResponse(null, []);
     }
 
     public function jsonResponse($view, array $data, $code = 200) {
         $data['status'] = $code === 200 ? true : false;
-        $response = new Response($this->renderView($view, $data), $code);
+        $response = new Response($view ? $this->renderView($view, $data) : json_encode($data), $code);
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     }

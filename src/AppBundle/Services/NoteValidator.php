@@ -28,6 +28,12 @@ class NoteValidator
     }
 
     public function validate() {
+        if (null !== $id = $this->note['id'] ?? null) {
+            if (!filter_var($this->note['id'], FILTER_VALIDATE_INT)) {
+                $this->errors['id'] = sprintf('Id is not integer');
+            }
+        }
+
         if (null !== $title = ($this->note['title'] ?? null)) {
             if (strlen($title) > self::TITLE_MAX_LENGTH) {
                 $this->errors['title'] = sprintf('Title max length is %s', self::TITLE_MAX_LENGTH);
@@ -36,8 +42,10 @@ class NoteValidator
             $this->errors['title'] = 'Title is required';
         }
 
-        if (null !== $note = $this->note['note'] && strlen($note) > self::NOTE_MAX_LENGTH) {
-            $this->errors['note'] = sprintf('Note max length is %s', self::NOTE_MAX_LENGTH);
+        if (null !== $note = $this->note['note']) {
+            if (strlen($note) > self::NOTE_MAX_LENGTH) {
+                $this->errors['note'] = sprintf('Note max length is %s', self::NOTE_MAX_LENGTH);
+            }
         }
     }
 
