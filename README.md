@@ -1,6 +1,6 @@
 <p align="center"><img src="http://www.activemeasure.com/images/logo.png"></p>
 
-## Active Measure test
+## test
 
 Test user: test@microsoft.com:billy007
 
